@@ -5,25 +5,28 @@ const app = express();
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const shell = require('node-powershell');
+const config = require('./config.json');
 
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-app.post('/upload', function (req, res) {
-    fs.writeFile('D:\\work\\test.txt', req.body.text, function(err) {
+app.post('/add', function (req, res) {
+    //fs.writeFile('D:\\work\\test.txt', req.body.text, function(err) {
+    fs.writeFile(config.path + '\\' + req.body.fileName, req.body.text, function(err) {
         if(err) {
             res.send(err.message)
         }
 
-        saveBackup(req.body.backup)
+        res.send('Файл добавлен');
+        /*saveBackup(req.body.backup)
             .then(result => {
                res.send(result + '. ' + 'Файл сохранён.');
             })
             .catch(err => {
                 res.send(err);
-            });
+            });*/
     });
 });
 
@@ -32,18 +35,24 @@ app.post('/restart', function (req, res) {
         executionPolicy: 'Bypass',
     });
 
+    //ps.addCommand('Set-Location -Path D:\\work\\excel-parser');
+    //ps.addCommand('Get-Location');
     ps.addCommand(req.body.command);
 
     ps.invoke()
-        .then(output => {
-            res.send(output);
+        .then(result => {
+            res.send(result);
         })
         .catch(err => {
             res.send(err.message)
             ps.dispose();
         });
 
+    ps.on('output', result => {
+        console.log(result);
+    });
 });
+
 
 function saveBackup(text) {
     return new Promise( function(resolve, reject){

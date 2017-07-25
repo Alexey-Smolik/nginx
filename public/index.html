@@ -1,77 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        textarea {
-            white-space: pre;
-            width: 400px;
-            height: 300px;
-        }
-    </style>
     <script src="jquery.min.js"></script>
 </head>
 <body>
-    <input type="file"/>
-    <br/><br/>
-    <textarea></textarea>
-    <br/>
-    <button id="save" disabled="true" onclick="saveFile()">Сохранить</button><br/><br/>
-    Команда: <input type="text" id="cmd" placeholder="команда">
-    <button id="restart" onclick="restart()">Restart</button>
-<script type="text/javascript">
-    const input = document.querySelector("input[type=file]");
-    const text = document.querySelector("textarea");
-    const saveButton = document.querySelector("#save");
-    var name;
-    var backup;
 
-    input.onchange = function(e) {
-        backup = text.value;
-        var reader = new FileReader();
-        reader.onload = function(event) {
-            text.value = event.target.result;
-            backup = text.value;
-            saveButton.disabled = false;
+    <div style="height: 500px; padding: 10px">
+        <div style="float: left; border: 1px; padding: 10px; padding-left: 30px; padding-right: 30px">
+            Создание файла:<br/><br/>
+            <textarea id="addArea" style="white-space: pre; width: 400px; height: 300px"></textarea><br/>
+            Имя файла: <input type="text" id="name" placeholder="имя файла">
+            <button id="addButton" onclick="addFile()">Добавить</button><br/><br/>
+        </div>
+
+        <div style="margin-right: 400px; float: right; padding: 10px">
+            Редактирование файла:<br/><br/>
+            <input type="file"/><br/><br/>
+            <textarea id="editArea" style="white-space: pre; width: 400px; height: 261px"></textarea><br/>
+            <button id="editButton" onclick="editFile()">Сохранить</button><br/><br/>
+        </div>
+
+            Команда: <input type="text" id="cmd" placeholder="команда" style="width: 300px;">
+            <button id="restart" onclick="restart()">Restart</button>
+
+    </div>
+
+
+    <script type="text/javascript">
+        const input = document.getElementById("input[type=file]");
+        const editText = document.getElementById("editArea");
+        const addText = document.getElementById("addArea");
+        //const addButton = document.querySelector("#save");
+        var name;
+
+        input.onchange = function(e) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                editText.value = event.target.result;
+                saveButton.disabled = false;
+            };
+
+            name = e.target.files[0].name;
+            reader.readAsText(new Blob([e.target.files[0]], {
+                "type": "application/json"
+            }));
         };
 
-        name = e.target.files[0].name;
-        reader.readAsText(new Blob([e.target.files[0]], {
-            "type": "application/json"
-        }));
-    };
+        function addFile(){
+            $.ajax({
+                url: "/add",
+                type: 'POST',
+                data: {
+                    text: addText.value,
+                    fileName: $('#name').val()
+                },
+                success: function(result){
+                    alert(result);
+                },
+                error: function(err) {
+                    alert(err.message);
+                }
+            });
+        }
 
-    function saveFile(){
-        $.ajax({
-            url: "/upload",
-            type: 'POST',
-            data: {
-                text: text.value,
-                backup: text.value
-            },
-            success: function(result){
-                alert(result);
-            },
-            error: function(err) {
-                alert(err.message);
-            }
-        });
-    }
-    
-    function restart(){
-        $.ajax({
-            url: "/restart",
-            type: 'POST',
-            data: {
-                command: $('#cmd').val()
-            },
-            success: function(result){
-                alert(result);
-            },
-            error: function(err) {
-                alert(err.message);
-            }
-        });
-    }
-</script>
+        function editFile() {
+            $.ajax({
+                url: "/edit",
+                type: 'POST',
+                data: {
+                    text: text.value,
+                    fileName: $('#name').val()
+                },
+                success: function(result){
+                    alert(result);
+                },
+                error: function(err) {
+                    alert(err.message);
+                }
+            });
+        }
+
+        function restart(){
+            $.ajax({
+                url: "/restart",
+                type: 'POST',
+                data: {
+                    command: $('#cmd').val()
+                },
+                success: function(result){
+                    alert(result);
+                },
+                error: function(err) {
+                    alert(err.message);
+                }
+            });
+        }
+    </script>
 </body>
 </html>
