@@ -13,22 +13,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.post('/add', function (req, res) {
-    //fs.writeFile('D:\\work\\test.txt', req.body.text, function(err) {
     fs.writeFile(config.path + '\\' + req.body.fileName, req.body.text, function(err) {
         if(err) {
             res.send(err.message)
         }
-
         res.send('Файл добавлен');
-        /*saveBackup(req.body.backup)
-            .then(result => {
-               res.send(result + '. ' + 'Файл сохранён.');
-            })
-            .catch(err => {
-                res.send(err);
-            });*/
     });
 });
+
+
+app.post('/edit', function (req, res) {
+    fs.writeFile(config.path + '\\' + req.body.fileName, req.body.text, function(err) {
+        if(err) {
+            res.send(err.message)
+        }
+        res.send('Файл изменен');
+    });
+});
+
 
 app.post('/restart', function (req, res) {
     let ps = new shell({

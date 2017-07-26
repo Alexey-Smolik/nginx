@@ -17,7 +17,7 @@
             Редактирование файла:<br/><br/>
             <input type="file"/><br/><br/>
             <textarea id="editArea" style="white-space: pre; width: 400px; height: 261px"></textarea><br/>
-            <button id="editButton" onclick="editFile()">Сохранить</button><br/><br/>
+            <button id="editButton" disabled="true" onclick="editFile()">Сохранить</button><br/><br/>
         </div>
 
             Команда: <input type="text" id="cmd" placeholder="команда" style="width: 300px;">
@@ -27,17 +27,17 @@
 
 
     <script type="text/javascript">
-        const input = document.getElementById("input[type=file]");
+        const input = document.querySelector("input[type=file]");
         const editText = document.getElementById("editArea");
         const addText = document.getElementById("addArea");
-        //const addButton = document.querySelector("#save");
+        const editButton = document.getElementById("editButton");
         var name;
 
         input.onchange = function(e) {
             var reader = new FileReader();
             reader.onload = function(event) {
                 editText.value = event.target.result;
-                saveButton.disabled = false;
+                editButton.disabled = false;
             };
 
             name = e.target.files[0].name;
@@ -68,8 +68,8 @@
                 url: "/edit",
                 type: 'POST',
                 data: {
-                    text: text.value,
-                    fileName: $('#name').val()
+                    text: editText.value,
+                    fileName: name
                 },
                 success: function(result){
                     alert(result);
